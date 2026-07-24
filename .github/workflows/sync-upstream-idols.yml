@@ -1,0 +1,51 @@
+name: Sync idols dataset from upstream
+
+# Alfira0526/saju-idol-match runs its own automated update around 23:00 KST
+# each night. This job pulls the resulting tools/idols.json a few hours
+# later, rebuilds index.html, and pushes if the dataset actually changed.
+on:
+  schedule:
+    - cron: '0 16 * * *' # 16:00 UTC = 01:00 KST
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch upstream idols.json
+        run: |
+          curl -sf -o /tmp/upstream-idols.json \
+            https://raw.githubusercontent.com/Alfira0526/saju-idol-match/master/tools/idols.json
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if diff -q tools/idols.json /tmp/upstream-idols.json > /dev/null; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Apply upstream data and rebuild
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          cp /tmp/upstream-idols.json tools/idols.json
+          node tools/build.js
+
+      - name: Commit and push
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tools/idols.json index.html
+          git commit -m "chore: sync idols dataset from upstream (Alfira0526/saju-idol-match)"
+          git push
