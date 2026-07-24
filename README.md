@@ -1,5 +1,8 @@
 # 사주 궁합 아이돌 매칭 · Saju Idol Match
 
+**credit: https://github.com/Alfira0526/saju-idol-match.git 
+오리지널 코드+아이디어는 Alfira0526의 GitHub에서 따왔습니다**
+
 생년월일(과 태어난 시각)로 **사주 일주(日柱)**를 계산하고, 오행·십신·지지 궁합에 **신강/신약 개인화**를 더해 아이돌·인물 **555명**을 나와 잘 맞는 "덕질 궁합" 순위로 추천하는 오락용 웹앱입니다.
 
 > Enter your birthday and this single-page app computes your Four-Pillars *day pillar*
