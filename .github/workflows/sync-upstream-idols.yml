@@ -21,10 +21,12 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Fetch upstream idols.json
+      - name: Fetch upstream idols.json and stats.json
         run: |
           curl -sf -o /tmp/upstream-idols.json \
             https://raw.githubusercontent.com/Alfira0526/saju-idol-match/master/tools/idols.json
+          curl -sf -o /tmp/upstream-stats.json \
+            https://raw.githubusercontent.com/Alfira0526/saju-idol-match/master/tools/stats.json
 
       - name: Check for changes
         id: diff
@@ -39,6 +41,7 @@ jobs:
         if: steps.diff.outputs.changed == 'true'
         run: |
           cp /tmp/upstream-idols.json tools/idols.json
+          cp /tmp/upstream-stats.json tools/stats.json
           node tools/build.js
 
       - name: Commit and push
@@ -46,6 +49,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add tools/idols.json index.html
+          git add tools/idols.json tools/stats.json index.html
           git commit -m "chore: sync idols dataset from upstream (Alfira0526/saju-idol-match)"
           git push
